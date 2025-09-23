@@ -124,6 +124,17 @@ import Footer from '../components/Footer.astro';
             // Get the input value
             const payload = document.getElementById('payload-input').value;
 
+            // Simple client-side validation for empty input
+            if (!payload) {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = `
+                    <div class="p-4 bg-red-900 bg-opacity-30 rounded-lg text-red-300">
+                        <p>Please enter a payload to test the WAF.</p>
+                    </div>
+                `;
+                return;
+            }
+
             // Display a message that the request is being sent
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
@@ -151,6 +162,10 @@ import Footer from '../components/Footer.astro';
                 }
             }).catch(error => {
                 // This block is typically reached when the WAF returns a 403 Forbidden error
+                // On a blocked request, we can navigate the user to a new page
+                // window.location.href = '/blocked-page';
+                
+                // For this demo, we'll just show the success message in the UI.
                 resultDiv.innerHTML = `<div class="p-4 bg-green-900 bg-opacity-30 rounded-lg text-green-300">
                                             <p>Request Blocked! Cloudflare's WAF successfully prevented the attack.</p>
                                             <p class="mt-2 text-sm text-green-400">Check your Cloudflare Analytics to confirm the blocked request.</p>
