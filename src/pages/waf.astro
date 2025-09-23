@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare WAF Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #E0E0E0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        input, button {
+            border-radius: 8px;
+            padding: 0.75rem;
+            width: 100%;
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+        input {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #E0E0E0;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        .payloads p {
+            background-color: #222;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold mb-2">Cloudflare WAF Demo</h1>
+        <p class="text-gray-400 mb-6">Enter a malicious payload below to see the WAF in action.</p>
+
+        <form id="waf-form" action="/api/v1/search" method="POST">
+            <input type="text" id="payload-input" name="payload" placeholder="Enter a malicious string...">
+            <button type="submit">Submit Request</button>
+        </form>
+
+        <div id="result">
+            <h3 class="text-xl font-semibold mb-2">Instructions:</h3>
+            <p class="text-gray-400">1. Deploy this site with Cloudflare Pages.</p>
+            <p class="text-gray-400">2. In your Cloudflare dashboard, enable the WAF for this site's hostname.</p>
+            <p class="text-gray-400">3. Try submitting one of the payloads below to see the request blocked!</p>
+            <h3 class="text-xl font-semibold mt-4 mb-2">Example Payloads:</h3>
+            <div class="payloads space-y-2">
+                <p><strong>SQL Injection:</strong> <code>' OR 1=1 --</code></p>
+                <p><strong>Cross-Site Scripting (XSS):</strong> <code><script>alert('XSS Attack!');</script></code></p>
+                <p><strong>Path Traversal:</strong> <code>../../../etc/passwd</code></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('waf-form').addEventListener('submit', function(event) {
+            // Prevent the default form submission which would navigate the page
+            event.preventDefault();
+
+            // Get the input value
+            const payload = document.getElementById('payload-input').value;
+
+            // Display a message that the request is being sent
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="p-4 bg-yellow-900 bg-opacity-30 rounded-lg text-yellow-300">
+                    <p>Submitting request with payload: <code>${payload}</code></p>
+                    <p class="mt-2">If your Cloudflare WAF is enabled, this request will be blocked before it reaches the server.</p>
+                    <p class="mt-2 text-sm text-yellow-400"><strong>Note:</strong> This is a client-side simulation. The browser's console will show a network error if the WAF blocks the request.</p>
+                </div>
+            `;
+
+            // Simulate sending a request. The WAF would block this network call.
+            // This URL doesn't need to exist for the demo to work.
+            fetch('/api/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: payload })
+            }).then(response => {
+                // This block will only be reached if the request is NOT blocked
+                if (response.ok) {
+                     resultDiv.innerHTML = `<div class="p-4 bg-red-900 bg-opacity-30 rounded-lg text-red-300">
+                                                <p>Request sent successfully. The WAF may not be configured or the payload was not malicious.</p>
+                                            </div>`;
+                }
+            }).catch(error => {
+                // This block is typically reached when the WAF returns a 403 Forbidden error
+                resultDiv.innerHTML = `<div class="p-4 bg-green-900 bg-opacity-30 rounded-lg text-green-300">
+                                            <p>Request Blocked! Cloudflare's WAF successfully prevented the attack.</p>
+                                            <p class="mt-2 text-sm text-green-400">Check your Cloudflare Analytics to confirm the blocked request.</p>
+                                        </div>`;
+                console.error('Request blocked by Cloudflare WAF:', error);
+            });
+        });
+    </script>
+</body>
+</html>
 
