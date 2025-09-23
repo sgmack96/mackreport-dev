@@ -158,17 +158,13 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 <body>
     <Header />
     <main>
-        <!-- Main content container -->
         <div class="container p-8">
             <h1 class="text-4xl font-bold mb-8 text-center text-white">Stephen Mack Shop</h1>
 
-            <!-- Product Grid -->
             <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                <!-- Product cards will be dynamically inserted here -->
-            </div>
+                </div>
         </div>
 
-        <!-- Floating Cart Toggle Button -->
         <button id="cart-toggle-button" class="cart-toggle-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart">
                 <circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" />
@@ -176,12 +172,10 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
             </svg>
         </button>
 
-        <!-- Cart Sidebar -->
         <div id="cart-sidebar" class="cart">
             <h2 class="text-2xl font-bold mb-4 text-white">Your Cart</h2>
             <div id="cart-items" class="mb-4">
-                <!-- Cart items will be dynamically inserted here -->
-            </div>
+                </div>
             <div id="cart-summary" class="cart-total-container">
                 <div class="flex justify-between font-bold text-lg mb-2">
                     <span>Total:</span>
@@ -191,37 +185,12 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
             </div>
         </div>
 
-        <!-- Notification Bar -->
         <div id="notification-bar" class="notification-bar"></div>
     </main>
     <Footer />
     
-    <script type="module">
-        // Import utilities from a local script or create them here. For this example, we'll create them inline.
-        const getCookie = (name) => {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-        };
-
-        const setCookie = (name, value, days) => {
-            let expires = "";
-            if (days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = `; expires=${date.toUTCString()}`;
-            }
-            document.cookie = `${name}=${value}${expires}; path=/; Secure; SameSite=Lax`;
-        };
-        
-        const deleteCookie = (name) => {
-            document.cookie = `${name}=; Max-Age=-99999999; path=/; Secure; SameSite=Lax`;
-        };
-
-        const KV_BINDING_NAME = "KV_STORAGE_PRODUCTS";
-        let kvBinding;
-        
-        // Sample product data
+    <script>
+        // Sample product data, hardcoded
         const products = [
             { id: "1", name: "Training Jersey", price: 59.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Jersey" },
             { id: "2", name: "Team Scarf", price: 24.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Scarf" },
@@ -241,13 +210,6 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
         const notificationBar = document.getElementById('notification-bar');
 
         let cart = {};
-        let sessionId = getCookie('sessionId');
-        if (!sessionId) {
-            sessionId = crypto.randomUUID();
-            setCookie('sessionId', sessionId, 30); // Store for 30 days
-        }
-        
-        const kvKey = `cart:${sessionId}`;
 
         // Function to show a temporary notification
         function showNotification(message) {
@@ -309,64 +271,17 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
             cartTotalElement.textContent = `$${total.toFixed(2)}`;
         }
 
-        // Function to save the cart state to Cloudflare KV
-        async function saveCartToKV() {
-            if (kvBinding) {
-                const cartState = JSON.stringify(cart);
-                await kvBinding.put(kvKey, cartState);
-            }
-        }
-
-        // Function to load cart from Cloudflare KV
-        async function loadCartFromKV() {
-            if (kvBinding) {
-                const cartState = await kvBinding.get(kvKey);
-                if (cartState) {
-                    try {
-                        cart = JSON.parse(cartState);
-                    } catch (e) {
-                        console.error("Error parsing cart data from KV:", e);
-                        cart = {};
-                    }
-                } else {
-                    cart = {};
-                }
-                renderCart();
-            }
-        }
-
         // --- Main logic and event listeners ---
-        if (typeof globalThis.__env__ !== 'undefined' && globalThis.__env__[KV_BINDING_NAME]) {
-            kvBinding = globalThis.__env__[KV_BINDING_NAME];
-            loadCartFromKV();
-        } else {
-            const mainContent = document.querySelector('main');
-            mainContent.innerHTML = `
-                <div class="flex items-center justify-center w-full h-full bg-gray-900 text-white p-4">
-                    <div class="text-center bg-gray-800 p-8 rounded-lg shadow-xl">
-                        <h1 class="text-3xl font-bold mb-4">Cloudflare KV Not Configured</h1>
-                        <p class="text-gray-400">Please bind a KV namespace named <strong>${KV_BINDING_NAME}</strong> to your Worker.</p>
-                    </div>
-                </div>
-            `;
-            // Hide other UI elements when not configured
-            document.body.classList.add('flex', 'items-center', 'justify-center');
-            productsContainer.classList.add('hidden');
-            cartToggleButton.classList.add('hidden');
-            cartSidebar.classList.add('hidden');
-        }
-
-        productsContainer.addEventListener('click', async (e) => {
+        productsContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('add-to-cart-btn')) {
                 const productId = e.target.dataset.id;
                 cart[productId] = (cart[productId] || 0) + 1;
                 renderCart();
                 showNotification("Item added to cart!");
-                await saveCartToKV();
             }
         });
 
-        cartItemsContainer.addEventListener('click', async (e) => {
+        cartItemsContainer.addEventListener('click', (e) => {
             const target = e.target;
             if (target.classList.contains('quantity-control')) {
                 const productId = target.dataset.id;
@@ -380,11 +295,10 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
                     }
                 }
                 renderCart();
-                await saveCartToKV();
             }
         });
 
-        checkoutButton.addEventListener('click', async () => {
+        checkoutButton.addEventListener('click', () => {
             if (Object.keys(cart).length === 0) {
                 showNotification("Your cart is empty. Please add some items to checkout.");
                 return;
@@ -396,7 +310,6 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
             showNotification(`Checkout successful! Your total is $${total.toFixed(2)}.`);
             cart = {};
             renderCart();
-            await saveCartToKV();
         });
 
         cartToggleButton.addEventListener('click', () => {
