@@ -1,10 +1,19 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// This is the component script, where you can write server-side JS.
+// In this case, we don't need any, so it's empty.
+---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloudflare WAF Demo</title>
+    <BaseHead title="Cloudflare WAF Demo" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -12,10 +21,18 @@
             background-color: #0d0d0d;
             color: #E0E0E0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 1rem;
+        }
+        main {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
         .container {
             max-width: 600px;
@@ -72,28 +89,32 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-3xl font-bold mb-2">Cloudflare WAF Demo</h1>
-        <p class="text-gray-400 mb-6">Enter a malicious payload below to see the WAF in action.</p>
+    <Header />
+    <main>
+        <div class="container">
+            <h1 class="text-3xl font-bold mb-2">Cloudflare WAF Demo</h1>
+            <p class="text-gray-400 mb-6">Enter a malicious payload below to see the WAF in action.</p>
 
-        <form id="waf-form" action="/api/v1/search" method="POST">
-            <input type="text" id="payload-input" name="payload" placeholder="Enter a malicious string...">
-            <button type="submit">Submit Request</button>
-        </form>
+            <form id="waf-form" action="/api/v1/search" method="POST">
+                <input type="text" id="payload-input" name="payload" placeholder="Enter a malicious string...">
+                <button type="submit">Submit Request</button>
+            </form>
 
-        <div id="result">
-            <h3 class="text-xl font-semibold mb-2">Instructions:</h3>
-            <p class="text-gray-400">1. Deploy this site with Cloudflare Pages.</p>
-            <p class="text-gray-400">2. In your Cloudflare dashboard, enable the WAF for this site's hostname.</p>
-            <p class="text-gray-400">3. Try submitting one of the payloads below to see the request blocked!</p>
-            <h3 class="text-xl font-semibold mt-4 mb-2">Example Payloads:</h3>
-            <div class="payloads space-y-2">
-                <p><strong>SQL Injection:</strong> <code>' OR 1=1 --</code></p>
-                <p><strong>Cross-Site Scripting (XSS):</strong> <code><script>alert('XSS Attack!');</script></code></p>
-                <p><strong>Path Traversal:</strong> <code>../../../etc/passwd</code></p>
+            <div id="result">
+                <h3 class="text-xl font-semibold mb-2">Instructions:</h3>
+                <p class="text-gray-400">1. Deploy this site with Cloudflare Pages.</p>
+                <p class="text-gray-400">2. In your Cloudflare dashboard, enable the WAF for this site's hostname.</p>
+                <p class="text-gray-400">3. Try submitting one of the payloads below to see the request blocked!</p>
+                <h3 class="text-xl font-semibold mt-4 mb-2">Example Payloads:</h3>
+                <div class="payloads space-y-2">
+                    <p><strong>SQL Injection:</strong> <code>' OR 1=1 --</code></p>
+                    <p><strong>Cross-Site Scripting (XSS):</strong> <code><script>alert('XSS Attack!');</script></code></p>
+                    <p><strong>Path Traversal:</strong> <code>../../../etc/passwd</code></p>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
+    <Footer />
 
     <script>
         document.getElementById('waf-form').addEventListener('submit', function(event) {
@@ -140,4 +161,3 @@
     </script>
 </body>
 </html>
-
