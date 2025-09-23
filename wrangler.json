@@ -14,7 +14,7 @@
   "kv_namespaces": [
     {
       "binding": "KV",
-      "id": "6be977b72eb94cd0b28c528161687558,
+      "id": "6be977b72eb94cd0b28c528161687558",
       "preview_id": "<ID_OF_PREVIEW_KV_NAMESPACE_FOR_LOCAL_DEVELOPMENT>"
     }
   ]
