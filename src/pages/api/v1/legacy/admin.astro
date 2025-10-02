@@ -1,1 +1,19 @@
+---
+// Astro API Route: GET /api/v1/legacy/admin
+// This endpoint simulates a legacy system that bypasses Cloudflare Schema Validation.
+
+export const prerender = false;
+
+export const GET = () => {
+    // Legacy endpoint always responds successfully without strict validation,
+    // demonstrating that Cloudflare protection is selectively skipped.
+    return new Response(JSON.stringify({
+        status: "warning",
+        message: "Legacy admin access granted. **WARNING:** This path is NOT protected by API Shield Schema Validation."
+    }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+    });
+}
+---
 
