@@ -1,1 +1,59 @@
+---
+// Astro API Route: POST /api/v1/scores
+// This endpoint expects a POST request with valid JSON data matching the schema:
+// { "team": "string", "score": "number" }
+// In a real scenario, Cloudflare API Shield blocks invalid requests before they reach this origin.
+
+export const prerender = false; // Disable prerendering for API routes
+
+export const POST = async ({ request }) => {
+    // 1. Check if the request body is present
+    if (!request.body) {
+        return new Response(JSON.stringify({ 
+            status: "error", 
+            message: "Missing request body." 
+        }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+
+    try {
+        const data = await request.json();
+
+        // 2. Origin-side basic validation (simulating the service receiving a validated request)
+        if (typeof data.team !== 'string' || typeof data.score !== 'number') {
+             // NOTE: In the demo, Cloudflare should catch this failure with a 403. 
+             // This 400 is the Origin server's fallback error.
+            return new Response(JSON.stringify({ 
+                status: "error", 
+                message: "Origin validation failure: Schema mismatch (requires team: string, score: number)." 
+            }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+        // 3. Success response (API Shield PASS)
+        return new Response(JSON.stringify({
+            status: "success",
+            message: `Origin received and processed score for ${data.team}.`,
+            data: data
+        }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+
+    } catch (error) {
+        // Cloudflare's WAF or API Shield (for malformed JSON) should catch this.
+        return new Response(JSON.stringify({ 
+            status: "error", 
+            message: "Invalid JSON format received." 
+        }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+---
 
