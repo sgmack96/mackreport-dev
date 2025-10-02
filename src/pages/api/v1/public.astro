@@ -1,1 +1,18 @@
+---
+// Astro API Route: GET /api/v1/public
+// This endpoint simulates a public API that relies on global WAF/Bot rules for protection.
+
+export const prerender = false;
+
+export const GET = () => {
+    // If the request makes it here, Cloudflare's WAF/Bot manager has passed it.
+    return new Response(JSON.stringify({
+        status: "success",
+        message: "Public feed data loaded. Request successfully passed Cloudflare WAF and Bot Management checks."
+    }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+    });
+}
+---
 
