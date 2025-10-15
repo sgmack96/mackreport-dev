@@ -188,137 +188,172 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
         <div id="notification-bar" class="notification-bar"></div>
     </main>
     <Footer />
-    
-    <script>
-        // Sample product data, hardcoded
-        const products = [
-            { id: "1", name: "Training Jersey", price: 59.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Jersey" },
-            { id: "2", name: "Team Scarf", price: 24.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Scarf" },
-            { id: "3", name: "Signed Football", price: 199.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Football" },
-            { id: "4", name: "Supporter Hat", price: 34.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Hat" },
-            { id: "5", name: "Team Poster", price: 19.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Poster" },
-            { id: "6", name: "Mug", price: 14.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Mug" },
-        ];
+   <script>
+    // Sample product data, hardcoded
+    const products = [
+        { id: "1", name: "Training Jersey", price: 59.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Jersey" },
+        { id: "2", name: "Team Scarf", price: 24.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Scarf" },
+        { id: "3", name: "Signed Football", price: 199.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Football" },
+        { id: "4", name: "Supporter Hat", price: 34.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Hat" },
+        { id: "5", name: "Team Poster", price: 19.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Poster" },
+        { id: "6", name: "Mug", price: 14.99, image: "https://placehold.co/400x300/1e1e1e/d1d5db?text=Mug" },
+    ];
 
-        // DOM elements
-        const productsContainer = document.getElementById('products-container');
-        const cartItemsContainer = document.getElementById('cart-items');
-        const cartTotalElement = document.getElementById('cart-total');
-        const cartSidebar = document.getElementById('cart-sidebar');
-        const cartToggleButton = document.getElementById('cart-toggle-button');
-        const checkoutButton = document.getElementById('checkout-button');
-        const notificationBar = document.getElementById('notification-bar');
+    // DOM elements
+    const productsContainer = document.getElementById('products-container');
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartTotalElement = document.getElementById('cart-total');
+    const cartSidebar = document.getElementById('cart-sidebar');
+    const cartToggleButton = document.getElementById('cart-toggle-button');
+    const checkoutButton = document.getElementById('checkout-button');
+    const notificationBar = document.getElementById('notification-bar');
 
-        let cart = {};
+    let cart = {};
 
-        // Function to show a temporary notification
-        function showNotification(message) {
-            notificationBar.textContent = message;
-            notificationBar.classList.add('visible');
-            setTimeout(() => {
-                notificationBar.classList.remove('visible');
-            }, 3000);
-        }
+    // Function to show a temporary notification
+    function showNotification(message) {
+        notificationBar.textContent = message;
+        notificationBar.classList.add('visible');
+        setTimeout(() => {
+            notificationBar.classList.remove('visible');
+        }, 3000);
+    }
 
-        // Function to render products on the page
-        function renderProducts() {
-            productsContainer.innerHTML = products.map(product => `
-                <div class="product-card">
-                    <div>
-                        <img src="${product.image}" alt="${product.name}" class="product-image">
-                        <h3 class="text-xl font-semibold text-white mb-2">${product.name}</h3>
-                        <p class="text-gray-400 mb-4">$${product.price.toFixed(2)}</p>
-                    </div>
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full mt-4 w-full add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+    // Function to render products on the page
+    function renderProducts() {
+        productsContainer.innerHTML = products.map(product => `
+            <div class="product-card">
+                <div>
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <h3 class="text-xl font-semibold text-white mb-2">${product.name}</h3>
+                    <p class="text-gray-400 mb-4">$${product.price.toFixed(2)}</p>
                 </div>
-            `).join('');
-        }
+                <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full mt-4 w-full add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+            </div>
+        `).join('');
+    }
 
-        // Function to render cart items and total
-        function renderCart() {
-            const productMap = products.reduce((map, p) => { map[p.id] = p; return map; }, {});
-            let cartItemsHtml = '';
-            let total = 0;
+    // Function to render cart items and total
+    function renderCart() {
+        const productMap = products.reduce((map, p) => { map[p.id] = p; return map; }, {});
+        let cartItemsHtml = '';
+        let total = 0;
 
-            if (Object.keys(cart).length === 0) {
-                cartItemsHtml = '<p class="empty-cart-message">Your cart is empty.</p>';
-                checkoutButton.style.display = 'none';
-            } else {
-                Object.entries(cart).forEach(([id, quantity]) => {
-                    const product = productMap[id];
-                    if (product) {
-                        const subtotal = product.price * quantity;
-                        total += subtotal;
-                        cartItemsHtml += `
-                            <div class="cart-item">
-                                <div class="flex-1 pr-4">
-                                    <p class="font-medium">${product.name}</p>
-                                    <p class="text-sm text-gray-400">$${product.price.toFixed(2)}</p>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <button class="quantity-control text-lg" data-id="${id}" data-action="decrement">-</button>
-                                    <span class="font-bold">${quantity}</span>
-                                    <button class="quantity-control text-lg" data-id="${id}" data-action="increment">+</button>
-                                </div>
+        if (Object.keys(cart).length === 0) {
+            cartItemsHtml = '<p class="empty-cart-message">Your cart is empty.</p>';
+            checkoutButton.style.display = 'none';
+        } else {
+            Object.entries(cart).forEach(([id, quantity]) => {
+                const product = productMap[id];
+                if (product) {
+                    const subtotal = product.price * quantity;
+                    total += subtotal;
+                    cartItemsHtml += `
+                        <div class="cart-item">
+                            <div class="flex-1 pr-4">
+                                <p class="font-medium">${product.name}</p>
+                                <p class="text-sm text-gray-400">$${product.price.toFixed(2)}</p>
                             </div>
-                        `;
-                    }
-                });
-                checkoutButton.style.display = 'block';
-            }
-
-            cartItemsContainer.innerHTML = cartItemsHtml;
-            cartTotalElement.textContent = `$${total.toFixed(2)}`;
+                            <div class="flex items-center space-x-2">
+                                <button class="quantity-control text-lg" data-id="${id}" data-action="decrement">-</button>
+                                <span class="font-bold">${quantity}</span>
+                                <button class="quantity-control text-lg" data-id="${id}" data-action="increment">+</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            checkoutButton.style.display = 'block';
         }
 
-        // --- Main logic and event listeners ---
-        productsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('add-to-cart-btn')) {
-                const productId = e.target.dataset.id;
+        cartItemsContainer.innerHTML = cartItemsHtml;
+        cartTotalElement.textContent = `$${total.toFixed(2)}`;
+    }
+
+    // --- Main logic and event listeners ---
+    // Make the event listener function ASYNC to use await with fetch
+    productsContainer.addEventListener('click', async (e) => { 
+        if (e.target.classList.contains('add-to-cart-btn')) {
+            const productId = e.target.dataset.id;
+            const quantity = 1;
+
+            try {
+                // 🛑 NEW: Call the Cloudflare Worker API endpoint
+                const response = await fetch('/api/v1/add-to-cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: productId, quantity: quantity })
+                });
+
+                if (response.status === 429) {
+                    // Cloudflare Rate Limiting has blocked the request
+                    showNotification("🚨 Rate limit exceeded. Please wait a moment before adding more items.");
+                    return; // Stop execution
+                }
+
+                if (!response.ok) {
+                    // Handle non-rate-limit errors from the worker (e.g., out of stock, 500 errors)
+                    showNotification(`❌ Failed to add item. Status: ${response.status}`);
+                    return; 
+                }
+
+                // If successful (response.ok is true, typically status 200 from the Worker)
+                // We proceed to update the *local* cart
                 cart[productId] = (cart[productId] || 0) + 1;
                 renderCart();
-                showNotification("Item added to cart!");
-            }
-        });
+                showNotification("✅ Item added to cart!");
 
-        cartItemsContainer.addEventListener('click', (e) => {
-            const target = e.target;
-            if (target.classList.contains('quantity-control')) {
-                const productId = target.dataset.id;
-                const action = target.dataset.action;
-                if (action === 'increment') {
-                    cart[productId] = (cart[productId] || 0) + 1;
-                } else if (action === 'decrement' && cart[productId] > 0) {
-                    cart[productId]--;
-                    if (cart[productId] === 0) {
-                        delete cart[productId];
-                    }
+            } catch (error) {
+                console.error('Error contacting the server:', error);
+                showNotification("⚠️ Network error. Could not connect to the server.");
+            }
+        }
+    });
+
+    // The cart quantity control logic is still local for a better UX,
+    // but in a production app, these should ideally also call a worker endpoint 
+    // to update the server-side session/cart state.
+    cartItemsContainer.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.classList.contains('quantity-control')) {
+            const productId = target.dataset.id;
+            const action = target.dataset.action;
+            if (action === 'increment') {
+                cart[productId] = (cart[productId] || 0) + 1;
+            } else if (action === 'decrement' && cart[productId] > 0) {
+                cart[productId]--;
+                if (cart[productId] === 0) {
+                    delete cart[productId];
                 }
-                renderCart();
             }
-        });
-
-        checkoutButton.addEventListener('click', () => {
-            if (Object.keys(cart).length === 0) {
-                showNotification("Your cart is empty. Please add some items to checkout.");
-                return;
-            }
-            const total = Object.entries(cart).reduce((sum, [id, quantity]) => {
-                const product = products.find(p => p.id === id);
-                return sum + (product.price * quantity);
-            }, 0);
-            showNotification(`Checkout successful! Your total is $${total.toFixed(2)}.`);
-            cart = {};
             renderCart();
-        });
+        }
+    });
 
-        cartToggleButton.addEventListener('click', () => {
-            cartSidebar.classList.toggle('open');
-        });
-        
-        // Initial setup
-        renderProducts();
+    checkoutButton.addEventListener('click', () => {
+        if (Object.keys(cart).length === 0) {
+            showNotification("Your cart is empty. Please add some items to checkout.");
+            return;
+        }
+        const total = Object.entries(cart).reduce((sum, [id, quantity]) => {
+            const product = products.find(p => p.id === id);
+            return sum + (product.price * quantity);
+        }, 0);
+        showNotification(`Checkout successful! Your total is $${total.toFixed(2)}.`);
+        cart = {};
         renderCart();
-    </script>
+    });
+
+    cartToggleButton.addEventListener('click', () => {
+        cartSidebar.classList.toggle('open');
+    });
+    
+    // Initial setup
+    renderProducts();
+    renderCart();
+</script>
+ 
+    
+
 </body>
 </html>
